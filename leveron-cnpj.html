@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leveron CNPJ - ERP Financeiro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #0f172a;
+            --dark-secondary: #1e293b;
+            --dark-tertiary: #334155;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #475569;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--dark-secondary) 0%, var(--dark-tertiary) 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 3px solid var(--primary);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .info-item {
+            text-align: right;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* NAVIGATION */
+        .nav {
+            background: var(--dark-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 73px;
+            z-index: 99;
+        }
+
+        .nav-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0.5rem;
+            padding: 0 2rem;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            color: var(--text);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARDS */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--dark-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+            border-color: var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            line-height: 1;
+        }
+
+        .card-value.positive { color: var(--success); }
+        .card-value.negative { color: var(--danger); }
+        .card-value.neutral { color: var(--primary); }
+        .card-value.warning { color: var(--warning); }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .card-meta {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .trend.up { color: var(--success); }
+        .trend.down { color: var(--danger); }
+
+        /* SECTION */
+        .section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--dark-tertiary);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        /* ALERTS */
+        .alerts-container {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            background: var(--dark-secondary);
+            border-left: 4px solid var(--info);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .alert.warning {
+            border-left-color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .alert.danger {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .alert.success {
+            border-left-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* TABLE */
+        .table-container {
+            background: var(--dark-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background: var(--dark-tertiary);
+        }
+
+        .table th {
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .table td {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .table tbody tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.pendente {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status-badge.recebido {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-badge.atrasado {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .status-badge.pago {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        /* CHART */
+        .chart-container {
+            background: var(--dark-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--dark-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            border: 2px solid var(--primary);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--dark-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        /* CENÁRIOS */
+        .cenarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .cenario-card {
+            background: var(--dark-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .cenario-card.otimista {
+            border-color: var(--success);
+        }
+
+        .cenario-card.realista {
+            border-color: var(--primary);
+        }
+
+        .cenario-card.pessimista {
+            border-color: var(--danger);
+        }
+
+        .cenario-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .cenario-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cenario-icon {
+            font-size: 2.5rem;
+        }
+
+        .cenario-title {
+            flex: 1;
+        }
+
+        .cenario-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .cenario-prob {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .cenario-data {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .cenario-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--dark-tertiary);
+            border-radius: 8px;
+        }
+
+        .cenario-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .cenario-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .nav-content {
+                padding: 0 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+        }
+
+        /* LOADING */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.25rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* PROJETO CARD */
+        .projeto-card {
+            background: var(--dark-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .projeto-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .projeto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .projeto-info h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .projeto-cliente {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .projeto-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .projeto-meta-item {
+            text-align: center;
+        }
+
+        .projeto-meta-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .projeto-meta-value {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--dark-tertiary);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--info));
+            border-radius: 999px;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading -->
+    <div class="loading-overlay" id="loading">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Processando dados...</div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <div class="logo">
+                    🏢 LEVERON
+                </div>
+                <div class="logo-subtitle">ERP Financeiro CNPJ</div>
+            </div>
+            <div class="header-info">
+                <div class="info-item">
+                    <div class="info-label">Saldo Atual</div>
+                    <div class="info-value" id="header-saldo">R$ 0,00</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Mês Atual</div>
+                    <div class="info-value" id="header-mes">Nov/24</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <button class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showTab('fluxo')">💰 Fluxo Caixa</button>
+            <button class="nav-tab" onclick="showTab('receber')">📈 A Receber</button>
+            <button class="nav-tab" onclick="showTab('pagar')">📉 A Pagar</button>
+            <button class="nav-tab" onclick="showTab('dre')">📋 DRE</button>
+            <button class="nav-tab" onclick="showTab('projetos')">🚀 Projetos</button>
+            <button class="nav-tab" onclick="showTab('cenarios')">🎯 Cenários</button>
+        </div>
+    </nav>
+
+    <!-- Container -->
+    <div class="container">
+
+        <!-- TAB: DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content active">
+
+            <!-- Alertas -->
+            <div class="alerts-container" id="alertas">
+                <!-- Alertas dinâmicos -->
+            </div>
+
+            <!-- Cards Principais -->
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">💰 Saldo Atual</div>
+                        <div class="card-icon">🏦</div>
+                    </div>
+                    <div class="card-value neutral" id="dash-saldo">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta">Fluxo de caixa</div>
+                        <div class="trend up" id="dash-saldo-trend">↑ +12%</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📊 Faturamento Mês</div>
+                        <div class="card-icon">💵</div>
+                    </div>
+                    <div class="card-value positive" id="dash-faturamento">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta" id="dash-fat-meta">Meta: R$ 0,00</div>
+                        <div class="trend up" id="dash-fat-trend">↑ 85%</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">💎 Lucro Operacional</div>
+                        <div class="card-icon">📈</div>
+                    </div>
+                    <div class="card-value positive" id="dash-lucro">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta" id="dash-margem">Margem: 0%</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">👤 Pró-labore Mês</div>
+                        <div class="card-icon">💼</div>
+                    </div>
+                    <div class="card-value neutral" id="dash-prolabore">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta" id="dash-cpf">CPF: R$ 0,00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="section">
+                <div class="section-title">📊 Visão Geral</div>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="chart-overview"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Próximos Vencimentos -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">📅 Próximos 7 Dias</div>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Vencimento</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="proximos-vencimentos">
+                            <!-- Dinâmico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB: FLUXO DE CAIXA -->
+        <div id="tab-fluxo" class="tab-content">
+            <div class="section-header">
+                <div class="section-title">💰 Fluxo de Caixa</div>
+                <button class="btn btn-primary" onclick="openModal('modal-transacao')">
+                    + Nova Transação
+                </button>
+            </div>
+
+            <!-- Resumo -->
+            <div class="cards-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="card">
+                    <div class="card-title">💚 Entradas</div>
+                    <div class="card-value positive" id="fluxo-entradas">R$ 0,00</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">💸 Saídas</div>
+                    <div class="card-value negative" id="fluxo-saidas">R$ 0,00</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">💰 Saldo</div>
+                    <div class="card-value neutral" id="fluxo-saldo">R$ 0,00</div>
+                </div>
+            </div>
+
+            <!-- Gráfico -->
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="chart-fluxo"></canvas>
+                </div>
+            </div>
+
+            <!-- Tabela -->
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Categoria</th>
+                            <th>Entrada</th>
+                            <th>Saída</th>
+                            <th>Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fluxo-table">
+                        <!-- Dinâmico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: CONTAS A RECEBER -->
+        <div id="tab-receber" class="tab-content">
+            <div class="section-header">
+                <div class="section-title">📈 Contas a Receber</div>
+                <button class="btn btn-primary" onclick="openModal('modal-receber')">
+                    + Novo Recebimento
+                </button>
+            </div>
+
+            <!-- Resumo -->
+            <div class="cards-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="card">
+                    <div class="card-title">⏳ Pendente</div>
+                    <div class="card-value warning" id="receber-pendente">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta" id="receber-pendente-count">0 parcelas</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✅ Recebido</div>
+                    <div class="card-value positive" id="receber-recebido">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta" id="receber-recebido-count">0 parcelas</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">⚠️ Atrasado</div>
+                    <div class="card-value negative" id="receber-atrasado">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta" id="receber-atrasado-count">0 parcelas</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela -->
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Projeto</th>
+                            <th>Valor</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receber-table">
+                        <!-- Dinâmico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: CONTAS A PAGAR -->
+        <div id="tab-pagar" class="tab-content">
+            <div class="section-header">
+                <div class="section-title">📉 Contas a Pagar</div>
+                <button class="btn btn-primary" onclick="openModal('modal-pagar')">
+                    + Novo Pagamento
+                </button>
+            </div>
+
+            <!-- Resumo -->
+            <div class="cards-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="card">
+                    <div class="card-title">⏳ Pendente</div>
+                    <div class="card-value warning" id="pagar-pendente">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta" id="pagar-pendente-count">0 contas</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✅ Pago</div>
+                    <div class="card-value positive" id="pagar-pago">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta" id="pagar-pago-count">0 contas</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">⚠️ Atrasado</div>
+                    <div class="card-value negative" id="pagar-atrasado">R$ 0,00</div>
+                    <div class="card-footer">
+                        <div class="card-meta" id="pagar-atrasado-count">0 contas</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela -->
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fornecedor</th>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pagar-table">
+                        <!-- Dinâmico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: DRE -->
+        <div id="tab-dre" class="tab-content">
+            <div class="section-header">
+                <div class="section-title">📋 DRE - Demonstração Resultado Exercício</div>
+                <button class="btn btn-secondary">
+                    📥 Exportar PDF
+                </button>
+            </div>
+
+            <!-- Seletor de Mês -->
+            <div class="form-group" style="max-width: 300px; margin-bottom: 2rem;">
+                <select class="form-select" id="dre-mes" onchange="atualizarDRE()">
+                    <option value="2024-11">Novembro 2024</option>
+                    <option value="2024-12">Dezembro 2024</option>
+                    <option value="2025-01">Janeiro 2025</option>
+                </select>
+            </div>
+
+            <!-- DRE -->
+            <div class="table-container">
+                <table class="table">
+                    <tbody id="dre-table">
+                        <!-- Gerado dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Gráfico Comparativo -->
+            <div class="section" style="margin-top: 2rem;">
+                <div class="section-title">📊 Evolução Mensal</div>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="chart-dre"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: PROJETOS -->
+        <div id="tab-projetos" class="tab-content">
+            <div class="section-header">
+                <div class="section-title">🚀 Projetos</div>
+                <button class="btn btn-primary" onclick="openModal('modal-projeto')">
+                    + Novo Projeto
+                </button>
+            </div>
+
+            <!-- Resumo -->
+            <div class="cards-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="card">
+                    <div class="card-title">📊 Total Projetos</div>
+                    <div class="card-value neutral" id="proj-total">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">💰 Valor Total</div>
+                    <div class="card-value positive" id="proj-valor">R$ 0,00</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">💎 Margem Média</div>
+                    <div class="card-value neutral" id="proj-margem">0%</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🏗️ Em Andamento</div>
+                    <div class="card-value warning" id="proj-andamento">0</div>
+                </div>
+            </div>
+
+            <!-- Lista de Projetos -->
+            <div id="projetos-list">
+                <!-- Dinâmico -->
+            </div>
+        </div>
+
+        <!-- TAB: CENÁRIOS -->
+        <div id="tab-cenarios" class="tab-content">
+            <div class="section">
+                <div class="section-title">🎯 Projeção 90 Dias - 3 Cenários</div>
+
+                <div class="cenarios-grid">
+                    <!-- Otimista -->
+                    <div class="cenario-card otimista">
+                        <div class="cenario-header">
+                            <div class="cenario-icon">✅</div>
+                            <div class="cenario-title">
+                                <div class="cenario-name" style="color: var(--success);">Otimista</div>
+                                <div class="cenario-prob">Probabilidade: 30%</div>
+                            </div>
+                        </div>
+                        <div class="cenario-data" id="cenario-otimista">
+                            <!-- Dinâmico -->
+                        </div>
+                    </div>
+
+                    <!-- Realista -->
+                    <div class="cenario-card realista">
+                        <div class="cenario-header">
+                            <div class="cenario-icon">⚖️</div>
+                            <div class="cenario-title">
+                                <div class="cenario-name" style="color: var(--primary);">Realista</div>
+                                <div class="cenario-prob">Probabilidade: 50%</div>
+                            </div>
+                        </div>
+                        <div class="cenario-data" id="cenario-realista">
+                            <!-- Dinâmico -->
+                        </div>
+                    </div>
+
+                    <!-- Pessimista -->
+                    <div class="cenario-card pessimista">
+                        <div class="cenario-header">
+                            <div class="cenario-icon">⚠️</div>
+                            <div class="cenario-title">
+                                <div class="cenario-name" style="color: var(--danger);">Pessimista</div>
+                                <div class="cenario-prob">Probabilidade: 20%</div>
+                            </div>
+                        </div>
+                        <div class="cenario-data" id="cenario-pessimista">
+                            <!-- Dinâmico -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos Comparativos -->
+            <div class="section">
+                <div class="section-title">📊 Comparativo Visual</div>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="chart-cenarios"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Modal: Nova Transação -->
+    <div class="modal" id="modal-transacao">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Nova Transação</div>
+                <button class="modal-close" onclick="closeModal('modal-transacao')">×</button>
+            </div>
+            <form onsubmit="salvarTransacao(event)">
+                <div class="form-group">
+                    <label class="form-label">Data</label>
+                    <input type="date" class="form-input" id="trans-data" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tipo</label>
+                    <select class="form-select" id="trans-tipo" required>
+                        <option value="entrada">Entrada</option>
+                        <option value="saida">Saída</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <input type="text" class="form-input" id="trans-descricao" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Valor (R$)</label>
+                    <input type="number" step="0.01" class="form-input" id="trans-valor" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-select" id="trans-categoria" required>
+                        <option value="">Selecione...</option>
+                        <option value="cliente">Cliente</option>
+                        <option value="dev">Dev</option>
+                        <option value="das">DAS</option>
+                        <option value="contador">Contador</option>
+                        <option value="prolabore">Pró-labore</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-transacao')" style="flex: 1;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Conta a Receber -->
+    <div class="modal" id="modal-receber">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Nova Conta a Receber</div>
+                <button class="modal-close" onclick="closeModal('modal-receber')">×</button>
+            </div>
+            <form onsubmit="salvarReceber(event)">
+                <div class="form-group">
+                    <label class="form-label">Cliente</label>
+                    <input type="text" class="form-input" id="rec-cliente" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Projeto</label>
+                    <input type="text" class="form-input" id="rec-projeto" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Valor (R$)</label>
+                        <input type="number" step="0.01" class="form-input" id="rec-valor" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vencimento</label>
+                        <input type="date" class="form-input" id="rec-vencimento" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Observações</label>
+                    <textarea class="form-textarea" id="rec-obs"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-receber')" style="flex: 1;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Conta a Pagar -->
+    <div class="modal" id="modal-pagar">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Nova Conta a Pagar</div>
+                <button class="modal-close" onclick="closeModal('modal-pagar')">×</button>
+            </div>
+            <form onsubmit="salvarPagar(event)">
+                <div class="form-group">
+                    <label class="form-label">Fornecedor</label>
+                    <input type="text" class="form-input" id="pag-fornecedor" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <input type="text" class="form-input" id="pag-descricao" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Valor (R$)</label>
+                        <input type="number" step="0.01" class="form-input" id="pag-valor" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vencimento</label>
+                        <input type="date" class="form-input" id="pag-vencimento" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-select" id="pag-categoria" required>
+                        <option value="">Selecione...</option>
+                        <option value="dev">Dev</option>
+                        <option value="das">DAS</option>
+                        <option value="contador">Contador</option>
+                        <option value="prolabore">Pró-labore</option>
+                        <option value="ferramentas">Ferramentas</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-pagar')" style="flex: 1;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Novo Projeto -->
+    <div class="modal" id="modal-projeto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Novo Projeto</div>
+                <button class="modal-close" onclick="closeModal('modal-projeto')">×</button>
+            </div>
+            <form onsubmit="salvarProjeto(event)">
+                <div class="form-group">
+                    <label class="form-label">Cliente</label>
+                    <input type="text" class="form-input" id="proj-cliente" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nome do Projeto</label>
+                    <input type="text" class="form-input" id="proj-nome" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Valor Total (R$)</label>
+                        <input type="number" step="0.01" class="form-input" id="proj-valor-total" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Custo Dev (R$)</label>
+                        <input type="number" step="0.01" class="form-input" id="proj-custo-dev" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Data Início</label>
+                        <input type="date" class="form-input" id="proj-inicio" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Data Entrega</label>
+                        <input type="date" class="form-input" id="proj-entrega" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <textarea class="form-textarea" id="proj-descricao"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-projeto')" style="flex: 1;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // DADOS DO SISTEMA (baseados no planejamento)
+        let dados = {
+            mes: '2024-11',
+            saldoInicial: 0,
+            meta: {
+                '2024-11': 21000,
+                '2024-12': 49000,
+                '2025-01': 58000
+            },
+            fluxoCaixa: [
+                { data: '2024-11-01', descricao: 'Saldo Inicial', tipo: 'entrada', valor: 0, categoria: '-', saldo: 0 }
+            ],
+            contasReceber: [
+                { id: 1, cliente: 'Douglas', projeto: 'Migração Sistema', valor: 4500, vencimento: '2024-11-10', status: 'pendente', obs: '30%' },
+                { id: 2, cliente: 'Douglas', projeto: 'Migração Sistema', valor: 6000, vencimento: '2024-12-15', status: 'pendente', obs: '40%' },
+                { id: 3, cliente: 'Douglas', projeto: 'Migração Sistema', valor: 4500, vencimento: '2025-01-10', status: 'pendente', obs: '30%' }
+            ],
+            contasPagar: [
+                { id: 1, fornecedor: 'Dev João', descricao: 'Douglas - 30%', valor: 2100, vencimento: '2024-11-20', status: 'pendente', categoria: 'dev' },
+                { id: 2, fornecedor: 'Contador', descricao: 'Novembro', valor: 350, vencimento: '2024-11-30', status: 'pendente', categoria: 'contador' },
+                { id: 3, fornecedor: 'Receita Federal', descricao: 'DAS Novembro', valor: 1260, vencimento: '2024-11-20', status: 'pendente', categoria: 'das' }
+            ],
+            projetos: [
+                {
+                    id: 1,
+                    cliente: 'Douglas',
+                    nome: 'Migração Sistema Bubble → Laravel',
+                    valorTotal: 15000,
+                    custoDev: 7000,
+                    dataInicio: '2024-11-10',
+                    dataEntrega: '2025-01-10',
+                    status: 'andamento',
+                    progresso: 15,
+                    descricao: 'Migração completa do sistema atual'
+                }
+            ],
+            cenarios: {
+                otimista: {
+                    nov: { fat: 31000, custos: 12310, lucro: 18690, prolabore: 12000 },
+                    dez: { fat: 70000, custos: 33450, lucro: 36550, prolabore: 20000 },
+                    jan: { fat: 82000, custos: 38370, lucro: 43630, prolabore: 25000 }
+                },
+                realista: {
+                    nov: { fat: 21000, custos: 8210, lucro: 12790, prolabore: 8000 },
+                    dez: { fat: 49000, custos: 25790, lucro: 23210, prolabore: 15000 },
+                    jan: { fat: 58000, custos: 29230, lucro: 28770, prolabore: 18000 }
+                },
+                pessimista: {
+                    nov: { fat: 12000, custos: 5420, lucro: 6580, prolabore: 5000 },
+                    dez: { fat: 30000, custos: 16250, lucro: 13750, prolabore: 10000 },
+                    jan: { fat: 45000, custos: 23300, lucro: 21700, prolabore: 13000 }
+                }
+            }
+        };
+
+        let charts = {};
+
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarDados();
+            inicializarSistema();
+        });
+
+        function inicializarSistema() {
+            atualizarHeader();
+            atualizarDashboard();
+            gerarAlertas();
+            renderizarFluxoCaixa();
+            renderizarContasReceber();
+            renderizarContasPagar();
+            renderizarProjetos();
+            atualizarDRE();
+            atualizarCenarios();
+            criarGraficos();
+        }
+
+        // NAVEGAÇÃO
+        function showTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // MODALS
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // HEADER
+        function atualizarHeader() {
+            const saldo = calcularSaldoAtual();
+            document.getElementById('header-saldo').textContent = formatarMoeda(saldo);
+            document.getElementById('header-mes').textContent = formatarMes(dados.mes);
+        }
+
+        // DASHBOARD
+        function atualizarDashboard() {
+            const saldo = calcularSaldoAtual();
+            const faturamento = calcularFaturamentoMes();
+            const lucro = calcularLucroMes();
+            const prolabore = calcularProlaboreMes();
+            const meta = dados.meta[dados.mes] || 0;
+            const margem = faturamento > 0 ? ((lucro / faturamento) * 100).toFixed(1) : 0;
+
+            document.getElementById('dash-saldo').textContent = formatarMoeda(saldo);
+            document.getElementById('dash-faturamento').textContent = formatarMoeda(faturamento);
+            document.getElementById('dash-fat-meta').textContent = `Meta: ${formatarMoeda(meta)}`;
+            document.getElementById('dash-fat-trend').textContent = `${((faturamento / meta) * 100).toFixed(0)}% da meta`;
+            document.getElementById('dash-lucro').textContent = formatarMoeda(lucro);
+            document.getElementById('dash-margem').textContent = `Margem: ${margem}%`;
+            document.getElementById('dash-prolabore').textContent = formatarMoeda(prolabore);
+            document.getElementById('dash-cpf').textContent = `CPF: ${formatarMoeda(prolabore * 0.842)}`;
+
+            atualizarProximosVencimentos();
+        }
+
+        function atualizarProximosVencimentos() {
+            const hoje = new Date();
+            const proximos7Dias = new Date(hoje.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+            let vencimentos = [];
+
+            // Receber
+            dados.contasReceber.forEach(c => {
+                const venc = new Date(c.vencimento);
+                if (venc <= proximos7Dias && c.status === 'pendente') {
+                    vencimentos.push({
+                        tipo: 'Receber',
+                        descricao: `${c.cliente} - ${c.projeto}`,
+                        valor: c.valor,
+                        vencimento: c.vencimento,
+                        status: 'pendente'
+                    });
+                }
+            });
+
+            // Pagar
+            dados.contasPagar.forEach(c => {
+                const venc = new Date(c.vencimento);
+                if (venc <= proximos7Dias && c.status === 'pendente') {
+                    vencimentos.push({
+                        tipo: 'Pagar',
+                        descricao: `${c.fornecedor} - ${c.descricao}`,
+                        valor: c.valor,
+                        vencimento: c.vencimento,
+                        status: 'pendente'
+                    });
+                }
+            });
+
+            vencimentos.sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
+
+            const tbody = document.getElementById('proximos-vencimentos');
+            tbody.innerHTML = vencimentos.length > 0 ? vencimentos.map(v => `
+                <tr>
+                    <td><span class="status-badge ${v.tipo === 'Receber' ? 'pendente' : 'atrasado'}">${v.tipo}</span></td>
+                    <td>${v.descricao}</td>
+                    <td>${formatarMoeda(v.valor)}</td>
+                    <td>${formatarData(v.vencimento)}</td>
+                    <td><span class="status-badge pendente">Pendente</span></td>
+                </tr>
+            `).join('') : '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">Nenhum vencimento nos próximos 7 dias</td></tr>';
+        }
+
+        // ALERTAS
+        function gerarAlertas() {
+            const alertas = [];
+            const hoje = new Date();
+
+            // Verificar contas atrasadas
+            const atrasadas = dados.contasPagar.filter(c => {
+                return new Date(c.vencimento) < hoje && c.status === 'pendente';
+            });
+
+            if (atrasadas.length > 0) {
+                const total = atrasadas.reduce((sum, c) => sum + c.valor, 0);
+                alertas.push({
+                    tipo: 'danger',
+                    icone: '🚨',
+                    titulo: `${atrasadas.length} conta(s) atrasada(s)`,
+                    texto: `Você tem ${formatarMoeda(total)} em contas atrasadas. Priorize os pagamentos!`
+                });
+            }
+
+            // Verificar meta do mês
+            const faturamento = calcularFaturamentoMes();
+            const meta = dados.meta[dados.mes] || 0;
+            const percentMeta = (faturamento / meta) * 100;
+
+            if (percentMeta < 50) {
+                alertas.push({
+                    tipo: 'warning',
+                    icone: '⚠️',
+                    titulo: 'Meta do mês abaixo do esperado',
+                    texto: `Você atingiu apenas ${percentMeta.toFixed(0)}% da meta. Faltam ${formatarMoeda(meta - faturamento)} para atingir R$ ${formatarMoeda(meta)}.`
+                });
+            } else if (percentMeta >= 100) {
+                alertas.push({
+                    tipo: 'success',
+                    icone: '🎉',
+                    titulo: 'Meta do mês atingida!',
+                    texto: `Parabéns! Você já atingiu ${percentMeta.toFixed(0)}% da meta deste mês.`
+                });
+            }
+
+            // Verificar saldo baixo
+            const saldo = calcularSaldoAtual();
+            if (saldo < 5000) {
+                alertas.push({
+                    tipo: 'warning',
+                    icone: '💰',
+                    titulo: 'Saldo em caixa baixo',
+                    texto: `Seu saldo atual é de ${formatarMoeda(saldo)}. Considere acelerar recebimentos ou postergar pagamentos não críticos.`
+                });
+            }
+
+            renderizarAlertas(alertas);
+        }
+
+        function renderizarAlertas(alertas) {
+            const container = document.getElementById('alertas');
+            container.innerHTML = alertas.length > 0 ? alertas.map(a => `
+                <div class="alert ${a.tipo}">
+                    <div class="alert-icon">${a.icone}</div>
+                    <div class="alert-content">
+                        <div class="alert-title">${a.titulo}</div>
+                        <div class="alert-text">${a.texto}</div>
+                    </div>
+                </div>
+            `).join('') : '';
+        }
+
+        // FLUXO DE CAIXA
+        function renderizarFluxoCaixa() {
+            let saldo = dados.saldoInicial;
+            const entradas = dados.fluxoCaixa.filter(f => f.tipo === 'entrada').reduce((sum, f) => sum + f.valor, 0);
+            const saidas = dados.fluxoCaixa.filter(f => f.tipo === 'saida').reduce((sum, f) => sum + f.valor, 0);
+
+            document.getElementById('fluxo-entradas').textContent = formatarMoeda(entradas);
+            document.getElementById('fluxo-saidas').textContent = formatarMoeda(saidas);
+            document.getElementById('fluxo-saldo').textContent = formatarMoeda(saldo);
+
+            const tbody = document.getElementById('fluxo-table');
+            tbody.innerHTML = dados.fluxoCaixa.map(f => {
+                saldo = f.saldo;
+                return `
+                    <tr>
+                        <td>${formatarData(f.data)}</td>
+                        <td>${f.descricao}</td>
+                        <td>${f.categoria}</td>
+                        <td style="color: var(--success);">${f.tipo === 'entrada' ? formatarMoeda(f.valor) : '-'}</td>
+                        <td style="color: var(--danger);">${f.tipo === 'saida' ? formatarMoeda(f.valor) : '-'}</td>
+                        <td style="font-weight: 700;">${formatarMoeda(f.saldo)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // CONTAS A RECEBER
+        function renderizarContasReceber() {
+            const pendente = dados.contasReceber.filter(c => c.status === 'pendente').reduce((sum, c) => sum + c.valor, 0);
+            const recebido = dados.contasReceber.filter(c => c.status === 'recebido').reduce((sum, c) => sum + c.valor, 0);
+            const atrasado = dados.contasReceber.filter(c => c.status === 'atrasado').reduce((sum, c) => sum + c.valor, 0);
+
+            document.getElementById('receber-pendente').textContent = formatarMoeda(pendente);
+            document.getElementById('receber-pendente-count').textContent = `${dados.contasReceber.filter(c => c.status === 'pendente').length} parcelas`;
+            document.getElementById('receber-recebido').textContent = formatarMoeda(recebido);
+            document.getElementById('receber-recebido-count').textContent = `${dados.contasReceber.filter(c => c.status === 'recebido').length} parcelas`;
+            document.getElementById('receber-atrasado').textContent = formatarMoeda(atrasado);
+            document.getElementById('receber-atrasado-count').textContent = `${dados.contasReceber.filter(c => c.status === 'atrasado').length} parcelas`;
+
+            const tbody = document.getElementById('receber-table');
+            tbody.innerHTML = dados.contasReceber.map(c => `
+                <tr>
+                    <td>${c.cliente}</td>
+                    <td>${c.projeto}</td>
+                    <td style="font-weight: 700;">${formatarMoeda(c.valor)}</td>
+                    <td>${formatarData(c.vencimento)}</td>
+                    <td><span class="status-badge ${c.status}">${c.status.charAt(0).toUpperCase() + c.status.slice(1)}</span></td>
+                    <td>
+                        ${c.status === 'pendente' ? `<button class="btn btn-success" onclick="marcarRecebido(${c.id})" style="padding: 0.5rem 1rem;">✓ Receber</button>` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function marcarRecebido(id) {
+            const conta = dados.contasReceber.find(c => c.id === id);
+            if (conta) {
+                conta.status = 'recebido';
+
+                // Adicionar no fluxo de caixa
+                const ultimoSaldo = dados.fluxoCaixa[dados.fluxoCaixa.length - 1].saldo;
+                dados.fluxoCaixa.push({
+                    data: new Date().toISOString().split('T')[0],
+                    descricao: `${conta.cliente} - ${conta.projeto}`,
+                    tipo: 'entrada',
+                    valor: conta.valor,
+                    categoria: 'cliente',
+                    saldo: ultimoSaldo + conta.valor
+                });
+
+                salvarDados();
+                inicializarSistema();
+            }
+        }
+
+        // CONTAS A PAGAR
+        function renderizarContasPagar() {
+            const pendente = dados.contasPagar.filter(c => c.status === 'pendente').reduce((sum, c) => sum + c.valor, 0);
+            const pago = dados.contasPagar.filter(c => c.status === 'pago').reduce((sum, c) => sum + c.valor, 0);
+            const atrasado = dados.contasPagar.filter(c => c.status === 'atrasado').reduce((sum, c) => sum + c.valor, 0);
+
+            document.getElementById('pagar-pendente').textContent = formatarMoeda(pendente);
+            document.getElementById('pagar-pendente-count').textContent = `${dados.contasPagar.filter(c => c.status === 'pendente').length} contas`;
+            document.getElementById('pagar-pago').textContent = formatarMoeda(pago);
+            document.getElementById('pagar-pago-count').textContent = `${dados.contasPagar.filter(c => c.status === 'pago').length} contas`;
+            document.getElementById('pagar-atrasado').textContent = formatarMoeda(atrasado);
+            document.getElementById('pagar-atrasado-count').textContent = `${dados.contasPagar.filter(c => c.status === 'atrasado').length} contas`;
+
+            const tbody = document.getElementById('pagar-table');
+            tbody.innerHTML = dados.contasPagar.map(c => `
+                <tr>
+                    <td>${c.fornecedor}</td>
+                    <td>${c.descricao}</td>
+                    <td style="font-weight: 700;">${formatarMoeda(c.valor)}</td>
+                    <td>${formatarData(c.vencimento)}</td>
+                    <td><span class="status-badge ${c.status}">${c.status.charAt(0).toUpperCase() + c.status.slice(1)}</span></td>
+                    <td>
+                        ${c.status === 'pendente' ? `<button class="btn btn-danger" onclick="marcarPago(${c.id})" style="padding: 0.5rem 1rem;">✓ Pagar</button>` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function marcarPago(id) {
+            const conta = dados.contasPagar.find(c => c.id === id);
+            if (conta) {
+                conta.status = 'pago';
+
+                // Adicionar no fluxo de caixa
+                const ultimoSaldo = dados.fluxoCaixa[dados.fluxoCaixa.length - 1].saldo;
+                dados.fluxoCaixa.push({
+                    data: new Date().toISOString().split('T')[0],
+                    descricao: `${conta.fornecedor} - ${conta.descricao}`,
+                    tipo: 'saida',
+                    valor: conta.valor,
+                    categoria: conta.categoria,
+                    saldo: ultimoSaldo - conta.valor
+                });
+
+                salvarDados();
+                inicializarSistema();
+            }
+        }
+
+        // DRE
+        function atualizarDRE() {
+            const mes = document.getElementById('dre-mes').value;
+            const cenario = dados.cenarios.realista[mes.substring(5, 7) === '11' ? 'nov' : mes.substring(5, 7) === '12' ? 'dez' : 'jan'];
+
+            const receitaBruta = cenario.fat;
+            const das = receitaBruta * 0.06;
+            const receitaLiquida = receitaBruta - das;
+            const custosVar = cenario.custos - 350; // Remove contador dos custos
+            const custosFixos = 350;
+            const lucroOp = cenario.lucro;
+            const prolabore = cenario.prolabore;
+            const lucroLiq = lucroOp - prolabore;
+            const margemOp = ((lucroOp / receitaBruta) * 100).toFixed(1);
+            const margemLiq = ((lucroLiq / receitaBruta) * 100).toFixed(1);
+
+            const tbody = document.getElementById('dre-table');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="2" style="font-size: 1.125rem; font-weight: 700; padding: 1.5rem 1rem;">DRE - ${formatarMes(mes)}</td>
+                </tr>
+                <tr style="background: var(--dark-tertiary);">
+                    <td style="padding-left: 2rem;">RECEITA BRUTA</td>
+                    <td style="text-align: right; font-weight: 700;">${formatarMoeda(receitaBruta)}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 3rem; color: var(--text-secondary);">(-) DAS (6%)</td>
+                    <td style="text-align: right; color: var(--danger);">${formatarMoeda(das)}</td>
+                </tr>
+                <tr style="background: var(--dark-tertiary); font-weight: 700;">
+                    <td style="padding-left: 2rem;">RECEITA LÍQUIDA</td>
+                    <td style="text-align: right;">${formatarMoeda(receitaLiquida)}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 2rem; padding-top: 1rem;">(-) CUSTOS VARIÁVEIS</td>
+                    <td style="text-align: right; color: var(--danger);">${formatarMoeda(custosVar)}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 2rem;">(-) CUSTOS FIXOS</td>
+                    <td style="text-align: right; color: var(--danger);">${formatarMoeda(custosFixos)}</td>
+                </tr>
+                <tr style="background: var(--dark-tertiary); font-weight: 700;">
+                    <td style="padding-left: 2rem;">LUCRO OPERACIONAL</td>
+                    <td style="text-align: right; color: var(--success);">${formatarMoeda(lucroOp)} (${margemOp}%)</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 2rem; padding-top: 1rem;">(-) PRÓ-LABORE</td>
+                    <td style="text-align: right; color: var(--danger);">${formatarMoeda(prolabore)}</td>
+                </tr>
+                <tr style="background: var(--primary); font-weight: 700; font-size: 1.125rem;">
+                    <td style="padding-left: 2rem;">LUCRO LÍQUIDO</td>
+                    <td style="text-align: right;">${formatarMoeda(lucroLiq)} (${margemLiq}%)</td>
+                </tr>
+            `;
+        }
+
+        // PROJETOS
+        function renderizarProjetos() {
+            const total = dados.projetos.length;
+            const valorTotal = dados.projetos.reduce((sum, p) => sum + p.valorTotal, 0);
+            const margemMedia = dados.projetos.reduce((sum, p) => {
+                const margem = ((p.valorTotal - p.custoDev) / p.valorTotal) * 100;
+                return sum + margem;
+            }, 0) / total;
+            const andamento = dados.projetos.filter(p => p.status === 'andamento').length;
+
+            document.getElementById('proj-total').textContent = total;
+            document.getElementById('proj-valor').textContent = formatarMoeda(valorTotal);
+            document.getElementById('proj-margem').textContent = `${margemMedia.toFixed(1)}%`;
+            document.getElementById('proj-andamento').textContent = andamento;
+
+            const container = document.getElementById('projetos-list');
+            container.innerHTML = dados.projetos.map(p => {
+                const margem = ((p.valorTotal - p.custoDev) / p.valorTotal) * 100;
+                return `
+                    <div class="projeto-card">
+                        <div class="projeto-header">
+                            <div class="projeto-info">
+                                <h3>${p.nome}</h3>
+                                <div class="projeto-cliente">${p.cliente}</div>
+                            </div>
+                            <span class="status-badge ${p.status === 'andamento' ? 'pendente' : 'recebido'}">${p.status === 'andamento' ? 'Em Andamento' : 'Concluído'}</span>
+                        </div>
+                        <div class="projeto-meta">
+                            <div class="projeto-meta-item">
+                                <div class="projeto-meta-label">Valor</div>
+                                <div class="projeto-meta-value" style="color: var(--success);">${formatarMoeda(p.valorTotal)}</div>
+                            </div>
+                            <div class="projeto-meta-item">
+                                <div class="projeto-meta-label">Custo</div>
+                                <div class="projeto-meta-value" style="color: var(--danger);">${formatarMoeda(p.custoDev)}</div>
+                            </div>
+                            <div class="projeto-meta-item">
+                                <div class="projeto-meta-label">Margem</div>
+                                <div class="projeto-meta-value" style="color: var(--primary);">${margem.toFixed(1)}%</div>
+                            </div>
+                            <div class="projeto-meta-item">
+                                <div class="projeto-meta-label">Entrega</div>
+                                <div class="projeto-meta-value" style="font-size: 0.875rem; color: var(--text-secondary);">${formatarData(p.dataEntrega)}</div>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${p.progresso}%"></div>
+                        </div>
+                        <div style="text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                            ${p.progresso}% concluído
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // CENÁRIOS
+        function atualizarCenarios() {
+            ['otimista', 'realista', 'pessimista'].forEach(tipo => {
+                const cenario = dados.cenarios[tipo];
+                const container = document.getElementById(`cenario-${tipo}`);
+
+                const totalFat = cenario.nov.fat + cenario.dez.fat + cenario.jan.fat;
+                const totalLucro = cenario.nov.lucro + cenario.dez.lucro + cenario.jan.lucro;
+                const totalProlabore = cenario.nov.prolabore + cenario.dez.prolabore + cenario.jan.prolabore;
+                const cpfLiquido = totalProlabore * 0.842; // Desconta impostos
+
+                container.innerHTML = `
+                    <div class="cenario-item">
+                        <div class="cenario-label">Faturamento 90d</div>
+                        <div class="cenario-value">${formatarMoeda(totalFat)}</div>
+                    </div>
+                    <div class="cenario-item">
+                        <div class="cenario-label">Lucro Operacional</div>
+                        <div class="cenario-value" style="color: var(--success);">${formatarMoeda(totalLucro)}</div>
+                    </div>
+                    <div class="cenario-item">
+                        <div class="cenario-label">Você recebe (CPF)</div>
+                        <div class="cenario-value" style="color: var(--primary);">${formatarMoeda(cpfLiquido)}</div>
+                    </div>
+                    <div class="cenario-item">
+                        <div class="cenario-label">Média mensal</div>
+                        <div class="cenario-value" style="font-size: 1rem;">${formatarMoeda(cpfLiquido / 3)}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // GRÁFICOS
+        function criarGraficos() {
+            criarGraficoOverview();
+            criarGraficoFluxo();
+            criarGraficoDRE();
+            criarGraficoCenarios();
+        }
+
+        function criarGraficoOverview() {
+            const ctx = document.getElementById('chart-overview');
+            if (charts.overview) charts.overview.destroy();
+
+            charts.overview = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Nov', 'Dez', 'Jan'],
+                    datasets: [
+                        {
+                            label: 'Receitas',
+                            data: [dados.cenarios.realista.nov.fat, dados.cenarios.realista.dez.fat, dados.cenarios.realista.jan.fat],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Custos',
+                            data: [dados.cenarios.realista.nov.custos, dados.cenarios.realista.dez.custos, dados.cenarios.realista.jan.custos],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Lucro',
+                            data: [dados.cenarios.realista.nov.lucro, dados.cenarios.realista.dez.lucro, dados.cenarios.realista.jan.lucro],
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f1f5f9', font: { size: 12, weight: 600 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function criarGraficoFluxo() {
+            const ctx = document.getElementById('chart-fluxo');
+            if (!ctx) return;
+            if (charts.fluxo) charts.fluxo.destroy();
+
+            charts.fluxo = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dados.fluxoCaixa.map(f => formatarData(f.data)),
+                    datasets: [{
+                        label: 'Saldo',
+                        data: dados.fluxoCaixa.map(f => f.saldo),
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function criarGraficoDRE() {
+            const ctx = document.getElementById('chart-dre');
+            if (!ctx) return;
+            if (charts.dre) charts.dre.destroy();
+
+            const c = dados.cenarios.realista;
+            charts.dre = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Novembro', 'Dezembro', 'Janeiro'],
+                    datasets: [
+                        {
+                            label: 'Receita',
+                            data: [c.nov.fat, c.dez.fat, c.jan.fat],
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)'
+                        },
+                        {
+                            label: 'Lucro',
+                            data: [c.nov.lucro, c.dez.lucro, c.jan.lucro],
+                            backgroundColor: 'rgba(99, 102, 241, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f1f5f9', font: { size: 12, weight: 600 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function criarGraficoCenarios() {
+            const ctx = document.getElementById('chart-cenarios');
+            if (!ctx) return;
+            if (charts.cenarios) charts.cenarios.destroy();
+
+            const meses = ['Nov', 'Dez', 'Jan'];
+            const otimista = [dados.cenarios.otimista.nov.lucro, dados.cenarios.otimista.dez.lucro, dados.cenarios.otimista.jan.lucro];
+            const realista = [dados.cenarios.realista.nov.lucro, dados.cenarios.realista.dez.lucro, dados.cenarios.realista.jan.lucro];
+            const pessimista = [dados.cenarios.pessimista.nov.lucro, dados.cenarios.pessimista.dez.lucro, dados.cenarios.pessimista.jan.lucro];
+
+            charts.cenarios = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: meses,
+                    datasets: [
+                        {
+                            label: 'Otimista',
+                            data: otimista,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Realista',
+                            data: realista,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Pessimista',
+                            data: pessimista,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f1f5f9', font: { size: 12, weight: 600 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // FORMS
+        function salvarTransacao(event) {
+            event.preventDefault();
+
+            const data = document.getElementById('trans-data').value;
+            const tipo = document.getElementById('trans-tipo').value;
+            const descricao = document.getElementById('trans-descricao').value;
+            const valor = parseFloat(document.getElementById('trans-valor').value);
+            const categoria = document.getElementById('trans-categoria').value;
+
+            const ultimoSaldo = dados.fluxoCaixa[dados.fluxoCaixa.length - 1].saldo;
+            const novoSaldo = tipo === 'entrada' ? ultimoSaldo + valor : ultimoSaldo - valor;
+
+            dados.fluxoCaixa.push({
+                data,
+                descricao,
+                tipo,
+                valor,
+                categoria,
+                saldo: novoSaldo
+            });
+
+            salvarDados();
+            closeModal('modal-transacao');
+            inicializarSistema();
+
+            // Limpar form
+            event.target.reset();
+        }
+
+        function salvarReceber(event) {
+            event.preventDefault();
+
+            const cliente = document.getElementById('rec-cliente').value;
+            const projeto = document.getElementById('rec-projeto').value;
+            const valor = parseFloat(document.getElementById('rec-valor').value);
+            const vencimento = document.getElementById('rec-vencimento').value;
+            const obs = document.getElementById('rec-obs').value;
+
+            const novoId = Math.max(...dados.contasReceber.map(c => c.id), 0) + 1;
+
+            dados.contasReceber.push({
+                id: novoId,
+                cliente,
+                projeto,
+                valor,
+                vencimento,
+                status: 'pendente',
+                obs
+            });
+
+            salvarDados();
+            closeModal('modal-receber');
+            inicializarSistema();
+
+            event.target.reset();
+        }
+
+        function salvarPagar(event) {
+            event.preventDefault();
+
+            const fornecedor = document.getElementById('pag-fornecedor').value;
+            const descricao = document.getElementById('pag-descricao').value;
+            const valor = parseFloat(document.getElementById('pag-valor').value);
+            const vencimento = document.getElementById('pag-vencimento').value;
+            const categoria = document.getElementById('pag-categoria').value;
+
+            const novoId = Math.max(...dados.contasPagar.map(c => c.id), 0) + 1;
+
+            dados.contasPagar.push({
+                id: novoId,
+                fornecedor,
+                descricao,
+                valor,
+                vencimento,
+                status: 'pendente',
+                categoria
+            });
+
+            salvarDados();
+            closeModal('modal-pagar');
+            inicializarSistema();
+
+            event.target.reset();
+        }
+
+        function salvarProjeto(event) {
+            event.preventDefault();
+
+            const cliente = document.getElementById('proj-cliente').value;
+            const nome = document.getElementById('proj-nome').value;
+            const valorTotal = parseFloat(document.getElementById('proj-valor-total').value);
+            const custoDev = parseFloat(document.getElementById('proj-custo-dev').value);
+            const dataInicio = document.getElementById('proj-inicio').value;
+            const dataEntrega = document.getElementById('proj-entrega').value;
+            const descricao = document.getElementById('proj-descricao').value;
+
+            const novoId = Math.max(...dados.projetos.map(p => p.id), 0) + 1;
+
+            dados.projetos.push({
+                id: novoId,
+                cliente,
+                nome,
+                valorTotal,
+                custoDev,
+                dataInicio,
+                dataEntrega,
+                status: 'andamento',
+                progresso: 0,
+                descricao
+            });
+
+            salvarDados();
+            closeModal('modal-projeto');
+            inicializarSistema();
+
+            event.target.reset();
+        }
+
+        // CÁLCULOS
+        function calcularSaldoAtual() {
+            if (dados.fluxoCaixa.length === 0) return 0;
+            return dados.fluxoCaixa[dados.fluxoCaixa.length - 1].saldo;
+        }
+
+        function calcularFaturamentoMes() {
+            const mesAtual = dados.mes;
+            return dados.fluxoCaixa
+                .filter(f => f.data.startsWith(mesAtual) && f.tipo === 'entrada' && f.categoria === 'cliente')
+                .reduce((sum, f) => sum + f.valor, 0);
+        }
+
+        function calcularLucroMes() {
+            const mesAtual = dados.mes;
+            const receitas = dados.fluxoCaixa
+                .filter(f => f.data.startsWith(mesAtual) && f.tipo === 'entrada')
+                .reduce((sum, f) => sum + f.valor, 0);
+            const despesas = dados.fluxoCaixa
+                .filter(f => f.data.startsWith(mesAtual) && f.tipo === 'saida' && f.categoria !== 'prolabore')
+                .reduce((sum, f) => sum + f.valor, 0);
+            return receitas - despesas;
+        }
+
+        function calcularProlaboreMes() {
+            const mesAtual = dados.mes;
+            return dados.fluxoCaixa
+                .filter(f => f.data.startsWith(mesAtual) && f.tipo === 'saida' && f.categoria === 'prolabore')
+                .reduce((sum, f) => sum + f.valor, 0);
+        }
+
+        // UTILITÁRIOS
+        function formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(valor);
+        }
+
+        function formatarData(data) {
+            if (!data) return '-';
+            const d = new Date(data + 'T00:00:00');
+            return d.toLocaleDateString('pt-BR');
+        }
+
+        function formatarMes(mes) {
+            if (!mes) return '-';
+            const [ano, m] = mes.split('-');
+            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            return `${meses[parseInt(m) - 1]}/${ano}`;
+        }
+
+        // LOCALSTORAGE
+        function salvarDados() {
+            localStorage.setItem('leveron-cnpj-data', JSON.stringify(dados));
+        }
+
+        function carregarDados() {
+            const salvos = localStorage.getItem('leveron-cnpj-data');
+            if (salvos) {
+                dados = JSON.parse(salvos);
+            }
+        }
+
+        // EXPORTAR/IMPORTAR
+        function exportarDados() {
+            const dataStr = JSON.stringify(dados, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `leveron-cnpj-backup-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        function importarDados() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        dados = JSON.parse(event.target.result);
+                        salvarDados();
+                        inicializarSistema();
+                        alert('Dados importados com sucesso!');
+                    } catch (error) {
+                        alert('Erro ao importar dados. Verifique o arquivo.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Adicionar botões de Export/Import no header
+        document.querySelector('.header-info').insertAdjacentHTML('beforeend', `
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary" onclick="exportarDados()" style="padding: 0.5rem 1rem; font-size: 0.75rem;">
+                    📥 Export
+                </button>
+                <button class="btn btn-secondary" onclick="importarDados()" style="padding: 0.5rem 1rem; font-size: 0.75rem;">
+                    📤 Import
+                </button>
+            </div>
+        `);
+    </script>
+</body>
+</html>
